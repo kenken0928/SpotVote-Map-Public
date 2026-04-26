@@ -1,0 +1,93 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS pins (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT,
+  lat REAL NOT NULL,
+  lng REAL NOT NULL,
+  category_id INTEGER,
+  address TEXT,
+  memo TEXT,
+  url TEXT,
+  is_public INTEGER NOT NULL DEFAULT 1,
+  created_by_temp_code INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS pin_display_settings (
+  pin_id INTEGER PRIMARY KEY,
+  show_description INTEGER NOT NULL DEFAULT 1,
+  show_address INTEGER NOT NULL DEFAULT 1,
+  show_memo INTEGER NOT NULL DEFAULT 1,
+  show_url INTEGER NOT NULL DEFAULT 1,
+  show_image INTEGER NOT NULL DEFAULT 1,
+  FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS images (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pin_id INTEGER NOT NULL,
+  r2_key TEXT NOT NULL UNIQUE,
+  public_url TEXT,
+  mime_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL DEFAULT 0,
+  width INTEGER,
+  height INTEGER,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS vote_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  description TEXT,
+  expires_at TEXT NOT NULL,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS vote_event_pins (
+  event_id INTEGER NOT NULL,
+  pin_id INTEGER NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (event_id, pin_id),
+  FOREIGN KEY (event_id) REFERENCES vote_events(id) ON DELETE CASCADE,
+  FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS votes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER NOT NULL,
+  pin_id INTEGER NOT NULL,
+  voter_name TEXT NOT NULL,
+  voter_comment TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (event_id) REFERENCES vote_events(id) ON DELETE CASCADE,
+  FOREIGN KEY (pin_id) REFERENCES pins(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS temp_post_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code_hash TEXT NOT NULL UNIQUE,
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_pins_public ON pins(is_public);
+CREATE INDEX IF NOT EXISTS idx_pins_category ON pins(category_id);
+CREATE INDEX IF NOT EXISTS idx_vote_events_slug ON vote_events(slug);
+CREATE INDEX IF NOT EXISTS idx_vote_events_expires ON vote_events(expires_at);
+CREATE INDEX IF NOT EXISTS idx_votes_event ON votes(event_id);
+CREATE INDEX IF NOT EXISTS idx_temp_codes_hash ON temp_post_codes(code_hash);

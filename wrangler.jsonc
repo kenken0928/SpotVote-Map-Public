@@ -1,0 +1,17 @@
+{
+  "name": "あなたのアプリの名前",
+  "pages_build_output_dir": "public",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "対象のD1SQL",
+      "database_id": "あなたのD1SQLのID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_BUCKET",
+      "bucket_name": "対象のR2"
+    }
+  ]
+}

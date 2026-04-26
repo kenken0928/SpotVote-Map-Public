@@ -1,0 +1,68 @@
+<!-- file: public/pin.html -->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>スポット詳細｜みんなで選べるスポットマップ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="shell-header">
+    <div class="container shell-header-inner">
+      <a class="brand-link" href="/">
+        <h1 class="brand-title">スポット詳細</h1>
+        <p class="brand-subtitle">候補地の情報を詳しく確認できます。</p>
+      </a>
+      <nav class="header-actions">
+        <a class="btn ghost" href="/">地図へ戻る</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container app-shell">
+    <div id="feedback" class="form-feedback"></div>
+
+    <section class="panel">
+      <div class="detail-single">
+        <img id="pinImage" class="detail-image" alt="">
+
+        <p class="section-label" id="pinCategory">Spot</p>
+        <h2 class="page-title" id="pinTitle">読み込み中...</h2>
+        <p class="page-subtitle" id="pinDescription"></p>
+
+        <div class="detail-meta" style="margin-top:18px;">
+          <div class="meta-row" id="addressRow">
+            <strong>住所</strong>
+            <span id="pinAddress"></span>
+          </div>
+
+          <div class="meta-row" id="memoRow">
+            <strong>メモ</strong>
+            <p id="pinMemo"></p>
+          </div>
+
+          <div class="meta-row" id="urlRow">
+            <strong>URL</strong>
+            <a id="pinUrl" href="#" target="_blank" rel="noopener"></a>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:18px;">
+          <a class="btn primary" href="/">地図で見る</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:20px;">
+      <div id="detailMap" class="map map-small"></div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/map.js"></script>
+  <script src="/js/pin.js"></script>
+</body>
+</html>

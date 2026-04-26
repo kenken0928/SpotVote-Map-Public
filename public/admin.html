@@ -1,0 +1,212 @@
+<!-- file: public/admin.html -->
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>管理画面｜みんなで選べるスポットマップ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260125-admin-fix">
+</head>
+<body>
+  <header class="shell-header">
+    <div class="container shell-header-inner">
+      <a class="brand-link" href="/">
+        <h1 class="brand-title">管理画面</h1>
+        <p class="brand-subtitle">Cloudflare Accessで保護されています。</p>
+      </a>
+      <nav class="header-actions">
+        <a class="btn ghost" href="/">公開マップ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container app-shell">
+    <div id="feedback" class="form-feedback"></div>
+
+    <section class="dashboard-grid">
+      <div class="panel panel-span-7">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Spot Editor</p>
+            <h3>スポット登録・編集</h3>
+            <p>地図クリックで緯度経度を入力できます。</p>
+          </div>
+        </div>
+
+        <div id="adminMap" class="map map-small"></div>
+
+        <form id="pinForm" style="margin-top:18px;">
+          <input type="hidden" id="pinId">
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="title">タイトル</label>
+              <input id="title" required maxlength="160">
+            </div>
+
+            <div class="form-field">
+              <label for="categoryId">カテゴリ</label>
+              <select id="categoryId"></select>
+            </div>
+
+            <div class="form-field">
+              <label for="lat">緯度</label>
+              <input id="lat" required type="number" step="any">
+            </div>
+
+            <div class="form-field">
+              <label for="lng">経度</label>
+              <input id="lng" required type="number" step="any">
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="description">説明</label>
+              <textarea id="description"></textarea>
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="address">住所</label>
+              <input id="address">
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="memo">メモ</label>
+              <textarea id="memo"></textarea>
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="url">URL</label>
+              <input id="url" type="url" placeholder="https://example.com">
+            </div>
+
+            <div class="form-field">
+              <label for="isPublic">公開設定</label>
+              <select id="isPublic">
+                <option value="1">公開</option>
+                <option value="0">非公開</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="imageFile">画像</label>
+              <input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp">
+              <p class="field-hint">ブラウザ側で横幅1200px程度に圧縮します。</p>
+              <div id="imagePreviewWrap" class="image-preview-wrap" hidden>
+                <img id="imagePreview" class="image-preview" alt="選択中の画像プレビュー">
+                <button class="btn small ghost" id="clearImageButton" type="button">画像選択を解除</button>
+              </div>
+            </div>
+
+            <div class="form-field form-span-2">
+              <label>公開画面で表示する項目</label>
+              <div class="inline-actions">
+                <label><input type="checkbox" id="showDescription" checked style="width:auto;"> 説明</label>
+                <label><input type="checkbox" id="showAddress" checked style="width:auto;"> 住所</label>
+                <label><input type="checkbox" id="showMemo" checked style="width:auto;"> メモ</label>
+                <label><input type="checkbox" id="showUrl" checked style="width:auto;"> URL</label>
+                <label><input type="checkbox" id="showImage" checked style="width:auto;"> 画像</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top:18px;">
+            <button class="btn primary" type="submit">保存</button>
+            <button class="btn ghost" id="resetPinForm" type="button">新規入力に戻す</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel panel-span-5">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Spot List</p>
+            <h3>登録済みスポット</h3>
+          </div>
+        </div>
+        <div id="adminPinList" class="spot-list"></div>
+      </div>
+
+      <div class="panel panel-span-7">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Vote Event</p>
+            <h3>投票イベント作成</h3>
+          </div>
+        </div>
+
+        <form id="eventForm">
+          <div class="form-grid">
+            <div class="form-field form-span-2">
+              <label for="eventTitleInput">イベント名</label>
+              <input id="eventTitleInput" required maxlength="160" placeholder="例：今週末のランチ候補">
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="eventDescriptionInput">説明</label>
+              <textarea id="eventDescriptionInput"></textarea>
+            </div>
+
+            <div class="form-field form-span-2">
+              <label for="eventExpiresInput">期限</label>
+              <input id="eventExpiresInput" required type="datetime-local">
+            </div>
+
+            <div class="form-field form-span-2">
+              <label>候補スポット</label>
+              <div id="eventPinChecks" class="stack-list"></div>
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top:18px;">
+            <button class="btn primary" type="submit">投票URLを作成</button>
+          </div>
+
+          <div id="createdVoteUrlOutput" class="created-vote-url" hidden></div>
+        </form>
+      </div>
+
+      <div class="panel panel-span-5">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">Operations</p>
+            <h3>運用機能</h3>
+          </div>
+        </div>
+
+        <div class="soft-card">
+          <h4>一時投稿コード発行</h4>
+          <p class="muted">閲覧者が1回だけ投稿できる6桁コードを発行します。有効期限は10分です。</p>
+          <button class="btn primary" id="createTempCodeButton" type="button">6桁コードを発行</button>
+          <p id="tempCodeOutput" class="summary-value"></p>
+        </div>
+
+        <div class="soft-card" style="margin-top:14px;">
+          <h4>期限切れイベント削除</h4>
+          <p class="muted">イベント・候補紐付け・投票データだけを削除します。スポット本体は削除しません。</p>
+          <button class="btn danger" id="cleanupButton" type="button">期限切れイベントを削除</button>
+        </div>
+
+        <div class="soft-card" style="margin-top:14px;">
+          <h4>投票イベント一覧</h4>
+          <div id="eventList" class="stack-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.addEventListener("error", function (event) {
+      var feedback = document.getElementById("feedback");
+      if (!feedback) return;
+      feedback.className = "form-feedback error";
+      feedback.textContent = "管理画面JSエラー: " + (event.message || "不明なエラー");
+    });
+  </script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/api.js?v=20260125-admin-fix"></script>
+  <script src="/js/map.js?v=20260125-admin-fix"></script>
+  <script src="/js/admin.js?v=20260125-admin-fix"></script>
+</body>
+</html>
